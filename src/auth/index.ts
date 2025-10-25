@@ -1,17 +1,8 @@
 import NextAuth, { NextAuthConfig } from 'next-auth';
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
-import { db } from '../lib/db';
-import { users, accounts, sessions, verificationTokens } from '../lib/db/schema';
 
 const authOptions: NextAuthConfig = {
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-    verificationTokensTable: verificationTokens,
-  }),
   session: {
     strategy: 'jwt',
   },
