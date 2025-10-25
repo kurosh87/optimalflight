@@ -25,6 +25,8 @@ export default function SearchPage() {
   const [returnDate, setReturnDate] = useState('');
   const [passengers, setPassengers] = useState(1);
   const [isSearching, setIsSearching] = useState(false);
+  const [results, setResults] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async () => {
     if (!origin || !destination || !departureDate) {
@@ -33,22 +35,35 @@ export default function SearchPage() {
     }
 
     setIsSearching(true);
+    setError(null);
+    setResults([]);
 
     try {
-      // TODO: Implement actual flight search
-      console.log('Searching flights:', {
-        origin: origin.code,
-        destination: destination.code,
-        departureDate,
-        returnDate,
-        passengers
+      const response = await fetch('/api/flights/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          origin: origin.code || origin,
+          destination: destination.code || destination,
+          departureDate,
+          returnDate,
+          adults: passengers,
+        }),
       });
 
-      // Navigate to results page or show results below
-      alert(`Searching flights from ${origin.code} to ${destination.code}...`);
+      if (!response.ok) {
+        throw new Error('Search failed');
+      }
+
+      const data = await response.json();
+      setResults(data.results || []);
+
+      if (data.results?.length === 0) {
+        setError('No flights found. Try different dates or airports.');
+      }
     } catch (error) {
       console.error('Search error:', error);
-      alert('Search failed. Please try again.');
+      setError('Search failed. Please try again or check your internet connection.');
     } finally {
       setIsSearching(false);
     }
@@ -225,6 +240,50 @@ export default function SearchPage() {
             ))}
           </div>
         </div>
+
+        {/* Search Results */}
+        {error && (
+          <div className="mt-8 bg-red-50 border border-red-200 rounded-lg p-6">
+            <p className="text-red-800">{error}</p>
+          </div>
+        )}
+
+        {results.length > 0 && (
+          <div className="mt-8 space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {results.length} flights found
+            </h2>
+
+            {results.map((flight, index) => (
+              <Card key={flight.id || index} className="shadow-lg hover:shadow-xl transition">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-gray-900">
+                        ${flight.price}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {flight.airline} • {flight.stops === 0 ? 'Direct' : `${flight.stops} stop${flight.stops > 1 ? 's' : ''}`}
+                      </div>
+                    </div>
+
+                    <Button className="bg-primary-500 hover:bg-primary-600 text-white">
+                      Select Flight
+                    </Button>
+                  </div>
+
+                  <div className="mt-4 text-sm text-gray-600">
+                    {flight.segments.map((seg: any, i: number) => (
+                      <div key={i}>
+                        {seg.departure} → {seg.arrival} ({seg.airline} {seg.flightNumber})
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
