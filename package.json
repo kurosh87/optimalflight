@@ -18,7 +18,12 @@
     "setup": "node scripts/setup-env.js",
     "import:airports": "tsx scripts/import-airports.ts",
     "import:airlines": "tsx scripts/import-airlines.ts",
-    "import:all": "npm run import:airports && npm run import:airlines"
+    "import:routes": "tsx scripts/import-openflights-routes.ts",
+    "import:all": "npm run import:airports && npm run import:airlines && npm run import:routes",
+    "monitor:routes": "tsx scripts/monitor-route-changes.ts",
+    "update:daily": "tsx scripts/automate-updates.ts daily",
+    "update:weekly": "tsx scripts/automate-updates.ts weekly",
+    "update:monthly": "tsx scripts/automate-updates.ts monthly"
   },
   "keywords": [],
   "author": "",
