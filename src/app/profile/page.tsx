@@ -17,7 +17,9 @@ import {
   LogOut,
   Crown,
   Zap,
+  Check,
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default async function ProfilePage() {
   const session = await auth();
