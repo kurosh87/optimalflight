@@ -12,9 +12,10 @@ import { eq } from 'drizzle-orm';
 
 export async function GET(
   request: Request,
-  { params }: { params: { iata: string } }
+  context: { params: Promise<{ iata: string }> }
 ) {
   try {
+    const params = await context.params;
     const { iata } = params;
     const iataCode = iata.toUpperCase();
 
